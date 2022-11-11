@@ -1,91 +1,89 @@
 const express = require("express");
+const { Client } = require('pg')
+
 const app = express();
 
 app.use(express.json());
 
-// app.get("/", (req, res) => {
-//     const content = fs.readFileSync(path.join(__dirname, 'static', 'index.html'), 'utf8');
-//     res.send(content);
-// })
-
-// app.get("/", (req, res, next) => {
-//     console.log("Primeiro get")
-//     next()
-// })
-
-// app.get("/", (req, res, next) => {
-//     console.log("Segundo get")
-//     next()
-// })
-
-// app.use("/", express.static(path.join(__dirname, "static")));
-
-//example of a rest api
-
-let db = [
-  { id: "1", name: "A" },
-  { id: "2", name: "B" },
-  { id: "3", name: "C" },
-];
-
 const router = express.Router();
 
+function conn() {
+  const client = new Client({
+    connectionString: "postgresql://postgres:postgres@localhost:5432/sysmap",
+  });
+  return client.connect().then(() => {
+    return client;
+  });
+}
+
 router
-  .route("/alunos")
+  .route("/posts")
+  .all((req, res, next) => {
+    console.log(new Date());
+    return conn().then((client) => {
+      req.db = client;
+      next();
+    });
+  })
   .get((req, res) => {
-    return res.send(db);
+    req.db
+      .query("SELECT id, title, body FROM public.posts;")
+      .then((data) => {
+        res.send(data.rows);
+      })
+      .catch((e) => {
+        console.error(e);
+        res.status(500).end();
+      });
   })
   .post((req, res) => {
-    const newAluno = req.body;
-    db.push(newAluno);
-    return res.status(201).send(newAluno);
+    db.push(req.body);
+    res.status(201);
+    res.end();
   });
 
 router
-  .route("/alunos/:id")
-  .get((req, res) => {
-    const { id } = req.params;
-    const aluno = db.find((el) => {
-      return el.id === id;
+  .param("id", (req, res, next, id) => {
+    console.log(new Date());
+    return conn().then((client) => {
+      req.db = client;
+      next();
     });
-    if (!aluno) {
-      return res.status(404).send({
-        error: `cannot find aluno by id ${id}`,
-      });
+  })
+  .route("/posts/:id")
+  .get((req, res) => {
+    const ret = db.find((e) => e.id === req.params.id);
+    if (ret) {
+      res.send(ret);
+    } else {
+      res.status(404).end();
     }
-    return res.send(aluno);
   })
   .put((req, res) => {
-    const { id } = req.params;
-    const aluno = db.find((el) => {
-      return el.id === id;
-    });
-    if (!aluno) {
-      return res.status(404).send({
-        error: `cannot find aluno by id ${id}`,
+    const ret = db.find((e) => e.id === req.params.id);
+    if (ret) {
+      db = db.map((e) => {
+        if (e.id === req.params.id) {
+          return req.body;
+        } else {
+          return e;
+        }
       });
+      res.status(202);
+      res.end();
+    } else {
+      res.status(404).end();
     }
-    db = db.map((el) => {
-      if (el.id === req.params.id) {
-        return req.body;
-      }
-      return el;
-    });
-    return res.status(202).end();
   })
   .delete((req, res) => {
-    const { id } = req.params;
-    const aluno = db.find((el) => {
-      return el.id === id;
-    });
-    if (!aluno) {
-      return res.status(404).send({
-        error: `cannot find aluno by id ${id}`,
-      });
+    const ret = db.find((e) => e.id === req.params.id);
+    if (ret) {
+      db = db.filter((e) => e.id !== req.params.id);
+      res.status(204);
+      res.end();
+    } else {
+      res.status(404).end();
     }
-    const alunos = db.filter((el) => el.id !== id);
-    db = alunos;
-    return res.status(204).end();
   });
 
 app.use("/v1", router);
