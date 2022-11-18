@@ -7,12 +7,16 @@ const commentSchema = new Schema(
       required: true,
       minLength: 2,
     },
+    user: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
     post: {
       type: Schema.Types.ObjectId,
       ref: "Post",
     },
   },
-  { timestamps: true }
 );
 
 module.exports = model("Comment", commentSchema);
