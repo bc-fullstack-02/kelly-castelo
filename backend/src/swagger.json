@@ -36,7 +36,7 @@
         "operationId": "getPosts",
         "responses": {
           "200": {
-            "description": "Successful operation",
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
@@ -56,17 +56,21 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Post"
-                }
+                "$ref": "#/components/schemas/Post"
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "CREATED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostPostResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -90,7 +94,7 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
@@ -129,10 +133,10 @@
         },
         "responses": {
           "204": {
-            "description": "no content"
+            "description": "NO CONTENT"
           },
           "404": {
-            "description": "post not found"
+            "description": "NOT FOUND"
           }
         }
       },
@@ -154,10 +158,196 @@
         ],
         "responses": {
           "204": {
-            "description": "no content"
+            "description": "NO CONTENT"
           },
           "404": {
-            "description": "post not found"
+            "description": "NOT FOUND"
+          }
+        }
+      }
+    },
+    "/posts/{postId}/comments": {
+      "get": {
+        "tags": ["comments"],
+        "summary": "Get all existing comments from a post",
+        "description": "Get all existing posts",
+        "operationId": "getPosts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "postId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the post to get comments from"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommentResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["comments"],
+        "summary": "Create a new comment",
+        "description": "Create a new comment",
+        "operationId": "createNewComment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "postId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the post to get comments from"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "CREATED"
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        }
+      }
+    },
+    "/posts/{postId}/comments/{id}": {
+      "get": {
+        "tags": ["comments"],
+        "summary": "Find comments by id",
+        "description": "Find comments by id",
+        "operationId": "findCommentsById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "postId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the post to get the comment from"
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the comment"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["comments"],
+        "summary": "Update a comment",
+        "description": "Update a comment",
+        "operationId": "updateComment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "postId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the post to get the comment from"
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the comment"
+          }
+        ],
+        "requestBody": {
+          "description": "Update an existent post",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "NO CONTENT"
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["comments"],
+        "summary": "Deletes a comment from a post",
+        "description": "Deletes a comment from a post",
+        "operationId": "deleteComment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "postId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the post to get the comment from"
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the comment"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "NO CONTENT"
+          },
+          "404": {
+            "description": "NOT FOUND"
           }
         }
       }
@@ -252,6 +442,26 @@
           }
         }
       },
+      "PostPostResponse": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "This is a title"
+          },
+          "description": {
+            "type": "string",
+            "example": "Whoa this is my new post!"
+          },
+          "user": {
+            "$ref": "#/components/schemas/PostUserResponse"
+          },
+          "comments": {
+            "type": "array",
+            "example": []
+          }
+        }
+      },
       "PostUserResponse": {
         "type": "object",
         "properties": {
@@ -299,6 +509,30 @@
           },
           "user": {
             "$ref": "#/components/schemas/UserResponse"
+          }
+        },
+        "required": ["description"]
+      },
+      "CommentRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "example": "Wow I cannot wait to try it!"
+          },
+          "user": {
+            "type": "string",
+            "example": "6378d0582aced40ac6317228"
+          }
+        },
+        "required": ["description"]
+      },
+      "CommentUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "example": "Yay, congratulations!"
           }
         },
         "required": ["description"]
