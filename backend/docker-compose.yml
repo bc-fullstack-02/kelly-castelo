@@ -20,7 +20,7 @@ services:
     environment:
       PORT: 4000
       MONGO_URL: mongodb://mongodb:27017/mydb
-      ACCESS_TOKEN_SECRET: tokenjwtlalalal
+      TOKEN_SECRET: f6f40e0d-7141-466d-8339-5429a4df6a97
     ports:
         - 4000:4000
     networks:

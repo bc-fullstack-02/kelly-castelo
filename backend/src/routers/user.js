@@ -2,8 +2,10 @@ const express = require("express");
 const userRouter = express.Router();
 const createError = require("http-errors");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const { User } = require("../models");
+const TOKEN_SECRET = process.env.TOKEN_SECRET;
 
 userRouter
   .route("/")
@@ -40,7 +42,7 @@ userRouter
       .then(() =>
         User.findByIdAndUpdate(req.params.id, req.body, {
           runValidators: true,
-          new: true
+          new: true,
         })
       )
       .then((data) => res.status(203).json(data))
@@ -52,5 +54,21 @@ userRouter
       .then((data) => res.status(203).json(data))
       .catch((err) => next(err))
   );
+
+userRouter.route("/login")
+  .post((req, res, next) =>
+  Promise.resolve()
+    .then(() => User.findOne({ user: req.body.user }))
+    .then((user) =>
+      user
+        ? bcrypt.compare(req.body.password, user.password)
+        : next(createError(400))
+    )
+    .then((password) =>
+      password ? jwt.sign(req.body.user, TOKEN_SECRET) : next(createError(400))
+    )
+    .then((token) => res.status(201).json({ token }))
+    .catch((err) => next(err))
+);
 
 module.exports = userRouter;
