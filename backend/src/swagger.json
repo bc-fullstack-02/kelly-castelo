@@ -1,0 +1,308 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "SysMap Social Network - OpenAPI 3.0",
+    "description": "Backend of the Social Network project of SysMap fullstack bootcamp.",
+    "contact": {
+      "email": "kellyplcastelo@gmail.com"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4000/v1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "posts",
+      "description": "Operations about posts"
+    },
+    {
+      "name": "comments",
+      "description": "Operations about comments"
+    },
+    {
+      "name": "users",
+      "description": "Operations about user"
+    }
+  ],
+  "paths": {
+    "/posts": {
+      "get": {
+        "tags": ["posts"],
+        "summary": "Get all existing posts",
+        "description": "Get all existing posts",
+        "operationId": "getPosts",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["posts"],
+        "summary": "Creates a new post",
+        "description": "Creates a new post",
+        "operationId": "createNewPost",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/posts/{id}": {
+      "get": {
+        "tags": ["posts"],
+        "summary": "Find posts by id",
+        "description": "Find posts by id",
+        "operationId": "findPostById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the post to get"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["posts"],
+        "summary": "Update a post",
+        "description": "This can only be done by the logged in user.",
+        "operationId": "updatePost",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the post to update"
+          }
+        ],
+        "requestBody": {
+          "description": "Update an existent post",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "no content"
+          },
+          "404": {
+            "description": "post not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["posts"],
+        "summary": "Deletes a post",
+        "description": "delete a post",
+        "operationId": "deletePost",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the post to delete"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "no content"
+          },
+          "404": {
+            "description": "post not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Post": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "This is a title"
+          },
+          "description": {
+            "type": "string",
+            "example": "Whoa this is my new post!"
+          },
+          "user": {
+            "type": "string",
+            "example": "6378d1561c7ac114dd86a840"
+          }
+        },
+        "required": ["title", "description", "user"]
+      },
+      "Comment": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "minLength": 2
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "post": {
+            "$ref": "#/components/schemas/Post"
+          }
+        },
+        "required": ["description"]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2
+          },
+          "user": {
+            "type": "string",
+            "minLength": 2
+          },
+          "password": {
+            "type": "string",
+            "minLength": 2
+          }
+        },
+        "required": ["name", "user", "password"]
+      },
+      "PostUpdate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "This is a new title"
+          },
+          "description": {
+            "type": "string",
+            "example": "My post is getting a update, yay!"
+          }
+        }
+      },
+      "PostResponse": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "This is a title"
+          },
+          "description": {
+            "type": "string",
+            "example": "Whoa this is my new post!"
+          },
+          "user": {
+            "$ref": "#/components/schemas/PostUserResponse"
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommentResponse"
+            }
+          }
+        }
+      },
+      "PostUserResponse": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "6378d1561c7ac114dd86a840"
+          },
+          "name": {
+            "type": "string",
+            "example": "Castelo"
+          },
+          "user": {
+            "type": "string",
+            "example": "Zamok"
+          }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "6378d1561c7ac114dd86a840"
+          },
+          "name": {
+            "type": "string",
+            "example": "Lucas"
+          },
+          "user": {
+            "type": "string",
+            "example": "Seraph"
+          }
+        }
+      },
+      "CommentResponse": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "6378d1561c7ac114dd86a840"
+          },
+          "description": {
+            "type": "string",
+            "example": "Nice post my dude!"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          }
+        },
+        "required": ["description"]
+      }
+    }
+  }
+}
