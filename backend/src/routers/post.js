@@ -27,14 +27,16 @@ postRouter
   .get((req, res, next) =>
     Promise.resolve()
       .then(() =>
-        Post.findById(req.params.id).populate({
-          path: "comments",
-          select: "-post",
-          populate: {
-            path: "user",
-            select: ["-password", "-following"],
-          },
-        })
+        Post.findById(req.params.id)
+          .populate({
+            path: "comments",
+            select: "-post",
+            populate: {
+              path: "user",
+              select: ["-password", "-following"],
+            },
+          })
+          .populate({ path: "user", select: ["-following", "-password"] })
       )
       .then((data) =>
         data ? res.status(200).json(data) : next(createError(404))
@@ -46,21 +48,19 @@ postRouter
       .then(() =>
         Post.findByIdAndUpdate(req.params.id, req.body, {
           runValidators: true,
-        }).orFail((err) => createError(404))
+        })
       )
       .then((data) =>
         data
           ? res.status(204).json()
           : next(createError(404)).catch((err) => next(err))
       )
-      .delete((req, res, next) =>
-        Promise.resolve()
-          .then(() => Post.deleteOne({ _id: req.params.id }))
-          .then((data) =>
-            data ? res.status(204).json() : next(createError(404))
-          )
-          .catch((err) => next(err))
-      )
+  )
+  .delete((req, res, next) =>
+    Promise.resolve()
+      .then(() => Post.deleteOne({ _id: req.params.id }).orFail(() => next(createError(404))))
+      .then(() => res.status(204).json())
+      .catch((err) => next(err))
   );
 
 module.exports = postRouter;
