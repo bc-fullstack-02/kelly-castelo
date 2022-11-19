@@ -37,6 +37,7 @@ postRouter
       .then(() =>
         Post.findByIdAndUpdate(req.params.id, req.body, {
           runValidators: true,
+          new: true
         })
       )
       .then((data) => res.status(203).json(data))
