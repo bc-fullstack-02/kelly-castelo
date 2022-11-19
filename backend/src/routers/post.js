@@ -18,7 +18,7 @@ postRouter
   .post((req, res, next) =>
     Promise.resolve()
       .then(() => new Post(req.body).save())
-      .then((data) => res.status(201).json())
+      .then((data) => res.status(201).json(data))
       .catch((err) => next(err))
   );
 
@@ -48,16 +48,19 @@ postRouter
           runValidators: true,
         }).orFail((err) => createError(404))
       )
-      .then((data) => res.status(204).json())
-      .catch((err) => next(err))
-  )
-  .delete((req, res, next) =>
-    Promise.resolve()
-      .then(() =>
-        Post.deleteOne({ _id: req.params.id }).orFail((err) => createError(404))
+      .then((data) =>
+        data
+          ? res.status(204).json()
+          : next(createError(404)).catch((err) => next(err))
       )
-      .then((data) => res.status(204).json())
-      .catch((err) => next(err))
+      .delete((req, res, next) =>
+        Promise.resolve()
+          .then(() => Post.deleteOne({ _id: req.params.id }))
+          .then((data) =>
+            data ? res.status(204).json() : next(createError(404))
+          )
+          .catch((err) => next(err))
+      )
   );
 
 module.exports = postRouter;
