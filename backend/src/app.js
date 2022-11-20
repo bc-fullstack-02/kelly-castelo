@@ -27,9 +27,6 @@ app.use("/v1/posts", PostRouter);
 PostRouter.use("/", CommentRouter);
 
 app.use((err, req, res, next) => {
-  console.log("Error handling middleware");
-  console.log("Path: " + req.path);
-
   if (err.name && err.name === "ValidationError") {
     const errors = Object.entries(err.errors).map(([, obj]) => obj.message);
     res.status(400).json({
