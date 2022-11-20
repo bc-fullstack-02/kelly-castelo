@@ -11,7 +11,7 @@ userRouter
   .route("/")
   .get((req, res) =>
     Promise.resolve()
-      .then(() => User.find({}))
+      .then(() => User.find({}, ["-password"]))
       .then((data) => res.status(200).json(data))
       .catch((err) => next(err))
   )
@@ -19,7 +19,12 @@ userRouter
     Promise.resolve()
       .then(() => bcrypt.hash(req.body.password, 8))
       .then((password) => new User({ ...req.body, password }).save())
-      .then((data) => res.status(201).json(data))
+      .then((data) => {
+        const user = {...data};
+        delete user._doc.password;
+        return user._doc;
+      })
+      .then((user) => res.status(201).json(user))
       .catch((err) => next(err))
   );
 
@@ -28,7 +33,7 @@ userRouter
   .get((req, res, next) =>
     Promise.resolve()
       .then(() =>
-        User.findById(req.params.id).populate({
+        User.findById(req.params.id).select("-password").populate({
           path: "following",
         })
       )
@@ -43,6 +48,7 @@ userRouter
         User.findByIdAndUpdate(req.params.id, req.body, {
           runValidators: true,
           new: true,
+          select: "-password"
         })
       )
       .then((data) => res.status(203).json(data))
