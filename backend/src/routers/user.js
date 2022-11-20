@@ -20,7 +20,7 @@ userRouter
       .then(() => bcrypt.hash(req.body.password, 8))
       .then((password) => new User({ ...req.body, password }).save())
       .then((data) => {
-        const user = {...data};
+        const user = { ...data };
         delete user._doc.password;
         return user._doc;
       })
@@ -48,7 +48,7 @@ userRouter
         User.findByIdAndUpdate(req.params.id, req.body, {
           runValidators: true,
           new: true,
-          select: "-password"
+          select: "-password",
         })
       )
       .then((data) => res.status(203).json(data))
@@ -61,19 +61,20 @@ userRouter
       .catch((err) => next(err))
   );
 
-userRouter.route("/login")
-  .post((req, res, next) =>
+userRouter.route("/login").post((req, res, next) =>
   Promise.resolve()
     .then(() => User.findOne({ user: req.body.user }))
     .then((user) =>
       user
         ? bcrypt.compare(req.body.password, user.password)
-        : next(createError(400))
+        : next(createError(404))
     )
     .then((password) =>
       password ? jwt.sign(req.body.user, TOKEN_SECRET) : next(createError(400))
     )
-    .then((token) => res.status(201).json({ token }))
+    .then((token) =>
+      token ? res.status(201).json({ token }) : next(createError(400))
+    )
     .catch((err) => next(err))
 );
 
