@@ -351,6 +351,196 @@
           }
         }
       }
+    },
+    "/users": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Get all existing users",
+        "description": "Get all existing users",
+        "operationId": "getUsers",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponseFind"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["users"],
+        "summary": "Creates a new user",
+        "description": "Creates a new user",
+        "operationId": "createNewUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "CREATED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponsePost"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Find user by id",
+        "description": "Find user by id",
+        "operationId": "findUserById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the user to get"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponsePost"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        }
+      },
+      "put": {
+        "tags": ["users"],
+        "summary": "Update an user",
+        "description": "Update an user",
+        "operationId": "updateUser",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the user to update"
+          }
+        ],
+        "requestBody": {
+          "description": "Update an existent user",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRequestUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "203": {
+            "description": "UNDOCUMENTED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponsePost"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["users"],
+        "summary": "Deletes an user",
+        "description": "delete an user",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the user to delete"
+          }
+        ],
+        "responses": {
+          "203": {
+            "description": "UNDOCUMENTED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponsePost"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        }
+      }
+    },
+    "/users/login": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Logs in an user",
+        "description": "Logs in an user",
+        "operationId": "logInUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -510,8 +700,7 @@
           "user": {
             "$ref": "#/components/schemas/UserResponse"
           }
-        },
-        "required": ["description"]
+        }
       },
       "CommentRequest": {
         "type": "object",
@@ -536,6 +725,97 @@
           }
         },
         "required": ["description"]
+      },
+      "UserResponseFind": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "6378d1561c7ac114dd86a840"
+          },
+          "name": {
+            "type": "string",
+            "example": "Lucas"
+          },
+          "user": {
+            "type": "string",
+            "example": "Seraph"
+          },
+          "following": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "6378d0582aced40ac6317228"
+            }
+          }
+        }
+      },
+      "UserResponsePost": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "6378d1561c7ac114dd86a840"
+          },
+          "name": {
+            "type": "string",
+            "example": "Lucas"
+          },
+          "user": {
+            "type": "string",
+            "example": "Seraph"
+          },
+          "following": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": "[]"
+          }
+        }
+      },
+      "UserRequestUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2
+          },
+          "user": {
+            "type": "string",
+            "minLength": 2
+          },
+          "password": {
+            "type": "string",
+            "minLength": 2
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2
+          },
+          "user": {
+            "type": "string",
+            "minLength": 2
+          },
+          "password": {
+            "type": "string",
+            "minLength": 2
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiJ9.U2VyYXBo.LrCXhlLs77HemLjp50JExozR-ZuQhwAgYPoa-xN-HvY"
+          }
+        }
       }
     }
   }
