@@ -25,7 +25,7 @@ app.use((req, res, next) =>
 
 app.use("/v1/users", UserRouter);
 app.use("/v1/posts", AuthValidator, PostRouter);
-PostRouter.use("/", CommentRouter);
+PostRouter.use("/", AuthValidator, CommentRouter);
 
 // error handler middleware
 app.use(ErrorHandler);
