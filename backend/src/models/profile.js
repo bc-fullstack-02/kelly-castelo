@@ -1,27 +1,23 @@
 const { Schema, model } = require("mongoose");
 
-const postSchema = new Schema({
-  title: {
+const profileSchema = new Schema({
+  name: {
     type: String,
     required: true,
     minLength: 2,
   },
-  description: {
-    type: String,
+  user: {
     required: true,
-    minLength: 2,
-  },
-  profile: {
     type: Schema.Types.ObjectId,
-    ref: "Profile",
+    ref: "User",
   },
-  comments: [
+  following: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Comment",
+      ref: "Profile",
     },
   ],
-  likes: [
+  followers: [
     {
       type: Schema.Types.ObjectId,
       ref: "Profile",
@@ -29,4 +25,5 @@ const postSchema = new Schema({
   ],
 });
 
-module.exports = model("Post", postSchema);
+profileSchema.index({ name: "text" });
+module.exports = model("Profile", profileSchema);
