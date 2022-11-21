@@ -8,16 +8,16 @@ postRouter
   .get((req, res) =>
     Promise.resolve()
       .then(() =>
-        Post.find({})
-          .populate("comments", "-post")
-          .populate("user", ["-password", "-following"])
+        Post.find({}).populate("comments", "-post").populate("profile")
       )
       .then((data) => res.status(200).json(data))
       .catch((err) => next(err))
   )
   .post((req, res, next) =>
     Promise.resolve()
-      .then(() => new Post(req.body).save())
+      .then(() =>
+        new Post({ ...req.body, profile: req.user.profile.id }).save()
+      )
       .then((data) => res.status(201).json(data))
       .catch((err) => next(err))
   );
@@ -32,11 +32,10 @@ postRouter
             path: "comments",
             select: "-post",
             populate: {
-              path: "user",
-              select: ["-password", "-following"],
+              path: "profile",
             },
           })
-          .populate({ path: "user", select: ["-following", "-password"] })
+          .populate({ path: "profile" })
       )
       .then((data) =>
         data ? res.status(200).json(data) : next(createError(404))
@@ -48,19 +47,62 @@ postRouter
       .then(() =>
         Post.findByIdAndUpdate(req.params.id, req.body, {
           runValidators: true,
+          new: true,
         })
       )
       .then((data) =>
-        data
-          ? res.status(204).json()
-          : next(createError(404)).catch((err) => next(err))
+        data ? res.status(203).json(data) : next(createError(404))
       )
+      .catch((err) => next(err))
   )
   .delete((req, res, next) =>
     Promise.resolve()
-      .then(() => Post.deleteOne({ _id: req.params.id }).orFail(() => next(createError(404))))
+      .then(() =>
+        Post.deleteOne({ _id: req.params.id }).orFail(() =>
+          next(createError(404))
+        )
+      )
       .then(() => res.status(204).json())
       .catch((err) => next(err))
   );
+
+postRouter.route("/:id/like").post((req, res, next) =>
+  Promise.resolve()
+    .then(() => Post.findById(req.params.id))
+    .then((data) =>
+      data.likes.find((user) => user._id.toString() === req.user.profile.id)
+    )
+    .then((user) =>
+      user === undefined
+        ? Post.findOneAndUpdate(
+            { _id: req.params.id },
+            { $push: { likes: req.user.profile.id } },
+            { new: true }
+          )
+        : next(createError(400))
+    )
+    .then((data) => (data ? res.status(200).json(data) : next(createError(400))))
+    .catch((err) => next(err))
+);
+
+// esse nome ta uma p****
+postRouter.route("/:id/unlike").post((req, res, next) =>
+  Promise.resolve()
+    .then(() => Post.findById(req.params.id))
+    .then((data) =>
+      data.likes.find((user) => user._id.toString() === req.user.profile.id)
+    )
+    .then((user) =>
+      user !== undefined
+        ? Post.findOneAndUpdate(
+            { _id: req.params.id },
+            { $pull: { likes: req.user.profile.id } },
+            { new: true }
+          )
+        : next(createError(400))
+    )
+    .then((data) => (data ? res.status(200).json(data) : next(createError(400))))
+    .catch((err) => next(err))
+);
 
 module.exports = postRouter;
