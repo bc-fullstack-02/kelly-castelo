@@ -1,4 +1,3 @@
 ## wip 
 
-- adicionar códigos de erro no swagger
-- resolver problemas de validação de inputs
+- refazer o swagger.json com as novas rotas 
