@@ -7,6 +7,7 @@ const swaggerDocument = require("./swagger.json");
 
 const { Connection } = require("./models");
 const { PostRouter, CommentRouter, UserRouter } = require("./routers");
+const { AuthValidator, ErrorHandler } = require("./middleware");
 
 app.use(express.json());
 app.use(cors());
@@ -23,24 +24,10 @@ app.use((req, res, next) =>
 // routes
 
 app.use("/v1/users", UserRouter);
-app.use("/v1/posts", PostRouter);
+app.use("/v1/posts", AuthValidator, PostRouter);
 PostRouter.use("/", CommentRouter);
 
-app.use((err, req, res, next) => {
-  if (err.name && err.name === "ValidationError") {
-    const errors = Object.entries(err.errors).map(([, obj]) => obj.message);
-    res.status(400).json({
-      path: req.path,
-      status: 400,
-      errors,
-    });
-  } else {
-    res.status(err.status || 500).json({
-      path: req.path,
-      status: err.status || 500,
-      errors: err.message,
-    });
-  }
-});
+// error handler middleware
+app.use(ErrorHandler);
 
 module.exports = app;
