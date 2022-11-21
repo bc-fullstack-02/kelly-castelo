@@ -69,7 +69,7 @@ commentRouter
           new: true,
         })
       )
-      .then((data) => (data ? res.status(204).json() : next(createError(404))))
+      .then((data) => (data ? res.status(203).json(data) : next(createError(404))))
       .catch((err) => next(err))
   )
   .delete((req, res, next) =>
