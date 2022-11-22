@@ -25,7 +25,7 @@ userRouter
   .delete((req, res, next) =>
     Promise.resolve()
       .then(() => User.deleteOne({ _id: req.user.id }))
-      .then((data) => res.status(203).json(data))
+      .then(() => res.status(204).json())
       .catch((err) => next(err))
   );
 
