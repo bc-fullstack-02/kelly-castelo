@@ -25,6 +25,18 @@
     {
       "name": "users",
       "description": "Operations about user"
+    },
+    {
+      "name": "security",
+      "description": "Auth operations"
+    },
+    {
+      "name": "feed",
+      "description": "Logged user feed"
+    },
+    {
+      "name": "profile",
+      "description": "Operations about profile"
     }
   ],
   "paths": {
@@ -44,8 +56,16 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
       },
       "post": {
         "tags": ["posts"],
@@ -56,7 +76,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Post"
+                "$ref": "#/components/schemas/PostRequest"
               }
             }
           }
@@ -67,12 +87,30 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PostPostResponse"
+                  "$ref": "#/components/schemas/PostResponse"
                 }
               }
             }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorArrayResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
       }
     },
     "/posts/{id}": {
@@ -102,8 +140,19 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
+          },
+          "404": {
+            "description": "NOT FOUND"
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
       },
       "put": {
         "tags": ["posts"],
@@ -126,19 +175,34 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PostUpdate"
+                "$ref": "#/components/schemas/PostRequest"
               }
             }
           }
         },
         "responses": {
-          "204": {
-            "description": "NO CONTENT"
+          "203": {
+            "description": "UNDOCUMENTED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
           },
           "404": {
             "description": "NOT FOUND"
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
       },
       "delete": {
         "tags": ["posts"],
@@ -160,10 +224,108 @@
           "204": {
             "description": "NO CONTENT"
           },
+          "401": {
+            "description": "UNAUTHORIZED"
+          },
           "404": {
             "description": "NOT FOUND"
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
+      }
+    },
+    "/posts/{id}/like": {
+      "post": {
+        "tags": ["posts"],
+        "summary": "Likes the post",
+        "description": "Likes the post, liking the same post twice will result in a bad request",
+        "operationId": "likesPost",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the post to like"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostResponseLikeUnlike"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST"
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
+      }
+    },
+    "/posts/{id}/unlike": {
+      "post": {
+        "tags": ["posts"],
+        "summary": "Unlikes the post",
+        "description": "Unlikes the post, unliking the same post twice will result in a bad request",
+        "operationId": "unlikesPost",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the post to like"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostResponseLikeUnlike"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST"
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
       }
     },
     "/posts/{postId}/comments": {
@@ -196,8 +358,32 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ErrorArrayResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
+          },
+          "404": {
+            "description": "NOT FOUND"
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
       },
       "post": {
         "tags": ["comments"],
@@ -226,12 +412,40 @@
         },
         "responses": {
           "201": {
-            "description": "CREATED"
+            "description": "CREATED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ErrorArrayResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
           },
           "404": {
             "description": "NOT FOUND"
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
       }
     },
     "/posts/{postId}/comments/{id}": {
@@ -270,8 +484,19 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
+          },
+          "404": {
+            "description": "NOT FOUND"
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
       },
       "put": {
         "tags": ["comments"],
@@ -303,19 +528,34 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CommentUpdateRequest"
+                "$ref": "#/components/schemas/CommentRequest"
               }
             }
           }
         },
         "responses": {
-          "204": {
-            "description": "NO CONTENT"
+          "203": {
+            "description": "UNDOCUMENTED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
           },
           "404": {
             "description": "NOT FOUND"
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
       },
       "delete": {
         "tags": ["comments"],
@@ -346,18 +586,217 @@
           "204": {
             "description": "NO CONTENT"
           },
+          "401": {
+            "description": "UNAUTHORIZED"
+          },
           "404": {
             "description": "NOT FOUND"
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
       }
     },
-    "/users": {
+    "/posts/{postId}/comments/{id}/like": {
+      "post": {
+        "tags": ["comments"],
+        "summary": "Likes a comment on a post",
+        "description": "Likes a comment on a post, liking the same post twice will result in a 400",
+        "operationId": "likesComment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "postId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "id of the post to add like in the comment"
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "id of the comment"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST"
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
+      }
+    },
+    "/posts/{postId}/comments/{id}/unlike": {
+      "post": {
+        "tags": ["comments"],
+        "summary": "Remove like from a comment",
+        "description": "Remove like from a comment, removing from the same post twice will result in a 400",
+        "operationId": "unlikeComment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "postId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "id of the post to remove like from the comment"
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "id of the comment"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST"
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
+      }
+    },
+    "/users/me": {
       "get": {
         "tags": ["users"],
-        "summary": "Get all existing users",
-        "description": "Get all existing users",
-        "operationId": "getUsers",
+        "summary": "Finds logged user",
+        "description": "Finds logged user",
+        "operationId": "findLoggedUser",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
+      },
+      "put": {
+        "tags": ["users"],
+        "summary": "Updates logged user's username",
+        "description": "Updates username",
+        "operationId": "updateUser",
+        "requestBody": {
+          "description": "Updates logged in username",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "203": {
+            "description": "UNDOCUMENTED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
+      },
+      "delete": {
+        "tags": ["users"],
+        "summary": "Deletes logged user",
+        "description": "deletes logged user",
+        "operationId": "deleteUser",
+        "responses": {
+          "204": {
+            "description": "NO CONTENT"
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
+      }
+    },
+    "/profiles": {
+      "get": {
+        "tags": ["profile"],
+        "summary": "Find all profiles",
+        "description": "Find all profiles",
+        "operationId": "findProfiles",
         "responses": {
           "200": {
             "description": "OK",
@@ -366,24 +805,164 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/UserResponseFind"
+                    "$ref": "#/components/schemas/ProfileResponse"
                   }
                 }
               }
             }
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
           }
-        }
-      },
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
+      }
+    },
+    "/profiles/search": {
+      "get": {
+        "tags": ["profile"],
+        "summary": "Search for a profile by its name",
+        "description": "Search for a profile by its name",
+        "operationId": "findProfileByName",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string",
+              "example": "Kelly Castelo"
+            },
+            "required": true,
+            "description": "profile's name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
+      }
+    },
+    "/profile/:id/follow": {
       "post": {
-        "tags": ["users"],
+        "tags": ["profile"],
+        "summary": "Follow a profile",
+        "description": "Follow a profile, returns 400 if you're already following this profile",
+        "operationId": "followProfile",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the profile to follow"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST"
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
+      }
+    },
+    "/profile/:id/unfollow": {
+      "post": {
+        "tags": ["profile"],
+        "summary": "Unfollow a profile",
+        "description": "Unfollow a profile, returns 400 if you're not following this profile",
+        "operationId": "unfollowProfile",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "uuid of the profile to unfollow"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST"
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
+      }
+    },
+    "/security/register": {
+      "post": {
+        "tags": ["security"],
         "summary": "Creates a new user",
         "description": "Creates a new user",
-        "operationId": "createNewUser",
+        "operationId": "registerUser",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/User"
+                "$ref": "#/components/schemas/RegisterRequest"
               }
             }
           }
@@ -394,7 +973,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserResponsePost"
+                  "$ref": "#/components/schemas/RegisterResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorArrayResponse"
                 }
               }
             }
@@ -402,117 +991,9 @@
         }
       }
     },
-    "/users/{id}": {
-      "get": {
-        "tags": ["users"],
-        "summary": "Find user by id",
-        "description": "Find user by id",
-        "operationId": "findUserById",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "description": "uuid of the user to get"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserResponsePost"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "NOT FOUND"
-          }
-        }
-      },
-      "put": {
-        "tags": ["users"],
-        "summary": "Update an user",
-        "description": "Update an user",
-        "operationId": "updateUser",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "description": "uuid of the user to update"
-          }
-        ],
-        "requestBody": {
-          "description": "Update an existent user",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserRequestUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "203": {
-            "description": "UNDOCUMENTED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserResponsePost"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "NOT FOUND"
-          }
-        }
-      },
-      "delete": {
-        "tags": ["users"],
-        "summary": "Deletes an user",
-        "description": "delete an user",
-        "operationId": "deleteUser",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "description": "uuid of the user to delete"
-          }
-        ],
-        "responses": {
-          "203": {
-            "description": "UNDOCUMENTED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserResponsePost"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "NOT FOUND"
-          }
-        }
-      }
-    },
-    "/users/login": {
+    "/security/login": {
       "post": {
-        "tags": ["users"],
+        "tags": ["security"],
         "summary": "Logs in an user",
         "description": "Logs in an user",
         "operationId": "logInUser",
@@ -537,267 +1018,62 @@
             }
           },
           "400": {
-            "description": "BAD REQUEST"
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
+      }
+    },
+    "/feed": {
+      "get": {
+        "tags": ["feed"],
+        "summary": "Gets logged user feed",
+        "description": "Gets logged user feed using the user header object",
+        "operationId": "feedUser",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": {}
+          }
+        ]
       }
     }
   },
   "components": {
     "schemas": {
-      "Post": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string",
-            "example": "This is a title"
-          },
-          "description": {
-            "type": "string",
-            "example": "Whoa this is my new post!"
-          },
-          "user": {
-            "type": "string",
-            "example": "6378d1561c7ac114dd86a840"
-          }
-        },
-        "required": ["title", "description", "user"]
-      },
-      "Comment": {
-        "type": "object",
-        "properties": {
-          "description": {
-            "type": "string",
-            "minLength": 2
-          },
-          "user": {
-            "$ref": "#/components/schemas/User"
-          },
-          "post": {
-            "$ref": "#/components/schemas/Post"
-          }
-        },
-        "required": ["description"]
-      },
-      "User": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 2
-          },
-          "user": {
-            "type": "string",
-            "minLength": 2
-          },
-          "password": {
-            "type": "string",
-            "minLength": 2
-          }
-        },
-        "required": ["name", "user", "password"]
-      },
-      "PostUpdate": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string",
-            "example": "This is a new title"
-          },
-          "description": {
-            "type": "string",
-            "example": "My post is getting a update, yay!"
-          }
-        }
-      },
-      "PostResponse": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string",
-            "example": "This is a title"
-          },
-          "description": {
-            "type": "string",
-            "example": "Whoa this is my new post!"
-          },
-          "user": {
-            "$ref": "#/components/schemas/PostUserResponse"
-          },
-          "comments": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CommentResponse"
-            }
-          }
-        }
-      },
-      "PostPostResponse": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string",
-            "example": "This is a title"
-          },
-          "description": {
-            "type": "string",
-            "example": "Whoa this is my new post!"
-          },
-          "user": {
-            "$ref": "#/components/schemas/PostUserResponse"
-          },
-          "comments": {
-            "type": "array",
-            "example": []
-          }
-        }
-      },
-      "PostUserResponse": {
-        "type": "object",
-        "properties": {
-          "_id": {
-            "type": "string",
-            "example": "6378d1561c7ac114dd86a840"
-          },
-          "name": {
-            "type": "string",
-            "example": "Castelo"
-          },
-          "user": {
-            "type": "string",
-            "example": "Zamok"
-          }
-        }
-      },
-      "UserResponse": {
-        "type": "object",
-        "properties": {
-          "_id": {
-            "type": "string",
-            "example": "6378d1561c7ac114dd86a840"
-          },
-          "name": {
-            "type": "string",
-            "example": "Lucas"
-          },
-          "user": {
-            "type": "string",
-            "example": "Seraph"
-          }
-        }
-      },
-      "CommentResponse": {
-        "type": "object",
-        "properties": {
-          "_id": {
-            "type": "string",
-            "example": "6378d1561c7ac114dd86a840"
-          },
-          "description": {
-            "type": "string",
-            "example": "Nice post my dude!"
-          },
-          "user": {
-            "$ref": "#/components/schemas/UserResponse"
-          }
-        }
-      },
-      "CommentRequest": {
-        "type": "object",
-        "properties": {
-          "description": {
-            "type": "string",
-            "example": "Wow I cannot wait to try it!"
-          },
-          "user": {
-            "type": "string",
-            "example": "6378d0582aced40ac6317228"
-          }
-        },
-        "required": ["description"]
-      },
-      "CommentUpdateRequest": {
-        "type": "object",
-        "properties": {
-          "description": {
-            "type": "string",
-            "example": "Yay, congratulations!"
-          }
-        },
-        "required": ["description"]
-      },
-      "UserResponseFind": {
-        "type": "object",
-        "properties": {
-          "_id": {
-            "type": "string",
-            "example": "6378d1561c7ac114dd86a840"
-          },
-          "name": {
-            "type": "string",
-            "example": "Lucas"
-          },
-          "user": {
-            "type": "string",
-            "example": "Seraph"
-          },
-          "following": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "example": "6378d0582aced40ac6317228"
-            }
-          }
-        }
-      },
-      "UserResponsePost": {
-        "type": "object",
-        "properties": {
-          "_id": {
-            "type": "string",
-            "example": "6378d1561c7ac114dd86a840"
-          },
-          "name": {
-            "type": "string",
-            "example": "Lucas"
-          },
-          "user": {
-            "type": "string",
-            "example": "Seraph"
-          },
-          "following": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "example": "[]"
-          }
-        }
-      },
-      "UserRequestUpdate": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 2
-          },
-          "user": {
-            "type": "string",
-            "minLength": 2
-          },
-          "password": {
-            "type": "string",
-            "minLength": 2
-          }
-        }
-      },
       "LoginRequest": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 2
-          },
           "user": {
             "type": "string",
             "minLength": 2
@@ -813,9 +1089,263 @@
         "properties": {
           "token": {
             "type": "string",
-            "example": "eyJhbGciOiJIUzI1NiJ9.U2VyYXBo.LrCXhlLs77HemLjp50JExozR-ZuQhwAgYPoa-xN-HvY"
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiQ2FzdGVsbyIsInByb2ZpbGUiOnsiaWQiOiI2MzdiYTdjNTE2YjFjMmExMzYwNTQ5NzcifSwiaWF0IjoxNjY5MDQ5MDYwfQ.UBA61UKGDbX6fvZ0KFdbV7pCnkplqQCxVgUSRO0bFbE"
           }
         }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "example": "Kelly"
+          },
+          "user": {
+            "type": "string",
+            "minLength": 2,
+            "example": "Castelo"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 2,
+            "example": "randompassoword123"
+          }
+        }
+      },
+      "RegisterResponse": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "637c9bb1fceec2bc7d8d9249"
+          },
+          "user": {
+            "type": "string",
+            "example": "Castelo"
+          }
+        }
+      },
+      "ErrorArrayResponse": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "example": "/v1/path/action"
+          },
+          "status": {
+            "type": "integer",
+            "example": "400"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "Path `user` is required"
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "example": "/v1/path/action"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "errors": {
+            "type": "string"
+          }
+        }
+      },
+      "PostResponse": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "637bbc3a69c083c2b0003097"
+          },
+          "title": {
+            "type": "string",
+            "example": "To be or not to be"
+          },
+          "description": {
+            "type": "string",
+            "example": "That is the question"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/ProfileResponse"
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "637bb9d4da4e28ea8606b7c4"
+            }
+          },
+          "likes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "637bb9d4da4e28ea8606b7c4"
+            }
+          }
+        }
+      },
+      "PostResponseLikeUnlike": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "637bbc3a69c083c2b0003097"
+          },
+          "title": {
+            "type": "string",
+            "example": "To be or not to be"
+          },
+          "description": {
+            "type": "string",
+            "example": "That is the question"
+          },
+          "profile": {
+            "type": "string",
+            "example": "637bb9d4da4e28ea8606b7c1"
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "637bb9d4da4e28ea8606b7c4"
+            }
+          },
+          "likes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "637bb9d4da4e28ea8606b7c4"
+            }
+          }
+        }
+      },
+      "PostRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "To be or not to be"
+          },
+          "description": {
+            "type": "string",
+            "example": "That is the question"
+          }
+        },
+        "required": ["title", "description"]
+      },
+      "ProfileResponse": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "637bb9d4da4e28ea8606b7c1"
+          },
+          "name": {
+            "type": "string",
+            "example": "Kelly Castelo"
+          },
+          "user": {
+            "type": "string",
+            "example": "637bb9d4da4e28ea8606b7bf"
+          },
+          "following": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "637bb9d4da4e28ea8606b7c7"
+            }
+          },
+          "followers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "637bb9d4da4e28ea8606b7c8"
+            }
+          }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "637bb9d4da4e28ea8606b7bf"
+          },
+          "user": {
+            "type": "string",
+            "example": "Castelo"
+          },
+          "profile": {
+            "type": "string",
+            "example": "637bb9d4da4e28ea8606b7c1"
+          }
+        }
+      },
+      "UserUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "string",
+            "example": "Castelo"
+          }
+        }
+      },
+      "CommentRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "example": "Amazing post!"
+          }
+        },
+        "required": ["description"]
+      },
+      "CommentResponse": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "637bbc3a69c083c2b0003097"
+          },
+          "description": {
+            "type": "string",
+            "example": "That is the question"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/ProfileResponse"
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "637bb9d4da4e28ea8606b7c4"
+            }
+          },
+          "likes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "637bb9d4da4e28ea8606b7c4"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
       }
     }
   }
