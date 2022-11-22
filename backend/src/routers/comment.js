@@ -24,7 +24,7 @@ commentRouter
   .post((req, res, next) =>
     Promise.resolve()
       .then(() =>
-        new Comment(Object.assign(req.body, { post: req.params.postId })).save()
+        new Comment(Object.assign({...req.body, profile: req.user.profile.id}, { post: req.params.postId })).save()
       )
       .then((comment) =>
         Post.findById(comment.post)
@@ -33,7 +33,9 @@ commentRouter
             Object.assign(post, { comments: [...post.comments, comment._id] })
           )
           .then((post) => Post.findByIdAndUpdate(comment.post, post))
-          .then(() => comment)
+          .then(() => comment.populate("profile"))
+          .then(({...data}) => data._doc)
+          .then(({post, ...data}) => data)
       )
       .then((data) => {
         res.status(201).json(data);
