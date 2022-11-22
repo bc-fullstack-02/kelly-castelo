@@ -41,7 +41,7 @@ profileRouter.route("/:id/follow").post((req, res, next) =>
   Promise.resolve()
     .then(() => Profile.findById(req.params.id))
     .then((data) =>
-      data.followers.find((user) => user._id.toString() === req.user.profile.id)
+      data ? data.followers.find((user) => user._id.toString() === req.user.profile.id) : next(createError(404))
     )
     .then((user) =>
       user === undefined
@@ -68,7 +68,7 @@ profileRouter.route("/:id/unfollow").post((req, res, next) =>
   Promise.resolve()
     .then(() => Profile.findById(req.params.id))
     .then((data) =>
-      data.followers.find((user) => user._id.toString() === req.user.profile.id)
+      data ? data.followers.find((user) => user._id.toString() === req.user.profile.id) : next(createError(404))
     )
     .then((user) =>
       user !== undefined
