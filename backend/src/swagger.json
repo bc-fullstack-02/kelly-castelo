@@ -822,7 +822,7 @@
         ]
       }
     },
-    "/profiles/search": {
+    "/profiles/search?q={q}": {
       "get": {
         "tags": ["profile"],
         "summary": "Search for a profile by its name",
