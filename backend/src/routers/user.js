@@ -1,13 +1,14 @@
 const express = require("express");
 const userRouter = express.Router();
 const { User } = require("../models");
+const createError = require("http-errors");
 
 userRouter
   .route("/me")
   .get((req, res, next) =>
     Promise.resolve()
       .then(() => User.findById(req.user.id, ["-password"]))
-      .then((data) => res.status(200).json(data))
+      .then((data) => data ? res.status(200).json(data) : next(createError(404)))
       .catch((err) => next(err))
   )
   .put((req, res, next) =>
