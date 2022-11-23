@@ -18,6 +18,7 @@ postRouter
       .then(() =>
         new Post({ ...req.body, profile: req.user.profile.id }).save()
       )
+      .then(args => req.publish('post', req.user.profile.followers, args))
       .then((data) => res.status(201).json(data))
       .catch((err) => next(err))
   );
