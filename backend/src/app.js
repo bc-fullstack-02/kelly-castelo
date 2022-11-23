@@ -5,6 +5,7 @@ const helmet = require("helmet");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
 const createError = require("http-errors");
+const path = require("path");
 
 const { Connection } = require("./models");
 const {
@@ -16,10 +17,17 @@ const {
   FeedRouter
 } = require("./routers");
 const { AuthValidator, ErrorHandler } = require("./middleware");
+const pubsub = require("./pubsub")
+
+
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(pubsub.pub);
 
 app.use(express.json());
 app.use(cors());
-app.use(helmet());
+// app.use(helmet());
 
 // swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
