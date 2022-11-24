@@ -24,7 +24,12 @@ commentRouter
   .post((req, res, next) =>
     Promise.resolve()
       .then(() =>
-        new Comment(Object.assign({...req.body, profile: req.user.profile._id}, { post: req.params.postId })).save()
+        new Comment(
+          Object.assign(
+            { ...req.body, profile: req.user.profile._id },
+            { post: req.params.postId }
+          )
+        ).save()
       )
       .then((comment) =>
         Post.findById(comment.post)
@@ -34,9 +39,10 @@ commentRouter
           )
           .then((post) => Post.findByIdAndUpdate(comment.post, post))
           .then(() => comment.populate("profile"))
-          .then(({...data}) => data._doc)
-          .then(({post, ...data}) => data)
+          .then(({ ...data }) => data._doc)
+          .then(({ post, ...data }) => data)
       )
+      .then((args) => req.publish("comment", req.user.profile.followers, args))
       .then((data) => {
         res.status(201).json(data);
       })
@@ -71,7 +77,9 @@ commentRouter
           new: true,
         })
       )
-      .then((data) => (data ? res.status(203).json(data) : next(createError(404))))
+      .then((data) =>
+        data ? res.status(203).json(data) : next(createError(404))
+      )
       .catch((err) => next(err))
   )
   .delete((req, res, next) =>
@@ -97,7 +105,9 @@ commentRouter
     Promise.resolve()
       .then(() => Comment.findById(req.params.id))
       .then((data) =>
-        data.likes.find((user) => user._id.equals(req.user.profile._id))
+        data
+          ? data.likes.find((user) => user._id.equals(req.user.profile._id))
+          : next(createError(404))
       )
       .then((user) =>
         user === undefined
@@ -107,6 +117,10 @@ commentRouter
               { new: true }
             )
           : next(createError(400))
+      )
+      .then(
+        (args) =>
+          args && req.publish("comment-like", req.user.profile.followers, args)
       )
       .then((data) => (data ? res.status(200).json(data) : createError(400)))
       .catch((err) => next(err))
@@ -125,7 +139,9 @@ commentRouter
     Promise.resolve()
       .then(() => Comment.findById(req.params.id))
       .then((data) =>
-        data.likes.find((user) => user._id.equals(req.user.profile._id))
+        data
+          ? data.likes.find((user) => user._id.equals(req.user.profile._id))
+          : next(createError(404))
       )
       .then((user) =>
         user !== undefined

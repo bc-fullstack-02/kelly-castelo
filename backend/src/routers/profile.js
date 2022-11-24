@@ -42,30 +42,28 @@ profileRouter.route("/:id/follow").post((req, res, next) =>
     .then(() => Profile.findById(req.params.id))
     .then((data) =>
       data
-        ? data.followers.find(
-            (user) => user._id.equals(req.user.profile._id)
-          )
+        ? data.followers.find((user) => user._id.equals(req.user.profile._id))
         : next(createError(404))
     )
-    .then((user) =>
-      user === undefined
-        ? Profile.findOneAndUpdate(
-            { _id: req.params.id },
-            { $push: { followers: req.user.profile._id } }
-          )
-        : next(createError(400))
+    .then(
+      (user) =>
+        user === undefined &&
+        Profile.findOneAndUpdate(
+          { _id: req.params.id },
+          { $push: { followers: req.user.profile._id } }
+        )
     )
-    .then((args) => req.publish("follow", req.params.id, args))
-    .then((data) =>
-      data
-        ? Profile.findOneAndUpdate(
-            { _id: req.user.profile._id },
-            { $push: { following: req.params.id } },
-            { new: true }
-          )
-        : next(createError(400))
+    .then((args) => args && req.publish("follow", req.params.id, args))
+    .then(
+      (data) =>
+        data &&
+        Profile.findOneAndUpdate(
+          { _id: req.user.profile._id },
+          { $push: { following: req.params.id } },
+          { new: true }
+        )
     )
-    .then((data) => (data ? res.status(200).json(data) : createError(400)))
+    .then((data) => (data ? res.status(200).json(data) : next(createError(400))))
     .catch((err) => next(err))
 );
 
@@ -74,29 +72,27 @@ profileRouter.route("/:id/unfollow").post((req, res, next) =>
     .then(() => Profile.findById(req.params.id))
     .then((data) =>
       data
-        ? data.followers.find(
-            (user) => user._id.equals(req.user.profile._id)
-          )
+        ? data.followers.find((user) => user._id.equals(req.user.profile._id))
         : next(createError(404))
     )
-    .then((user) =>
-      user !== undefined
-        ? Profile.findOneAndUpdate(
-            { _id: req.params.id },
-            { $pull: { followers: req.user.profile._id } }
-          )
-        : next(createError(400))
+    .then(
+      (user) =>
+        user !== undefined &&
+        Profile.findOneAndUpdate(
+          { _id: req.params.id },
+          { $pull: { followers: req.user.profile._id } }
+        )
     )
-    .then((data) =>
-      data
-        ? Profile.findOneAndUpdate(
-            { _id: req.user.profile._id },
-            { $pull: { following: req.params.id } },
-            { new: true }
-          )
-        : next(createError(400))
+    .then(
+      (data) =>
+        data &&
+        Profile.findOneAndUpdate(
+          { _id: req.user.profile._id },
+          { $pull: { following: req.params.id } },
+          { new: true }
+        )
     )
-    .then((data) => (data ? res.status(200).json(data) : createError(400)))
+    .then((data) => (data ? res.status(200).json(data) : next(createError(400))))
     .catch((err) => next(err))
 );
 

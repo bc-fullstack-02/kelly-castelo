@@ -16,7 +16,9 @@ postRouter
   .post((req, res, next) =>
     Promise.resolve()
       .then(() =>
-        new Post({ ...req.body, profile: req.user.profile._id }).save()
+        new Post({ ...req.body, profile: req.user.profile._id })
+          .save()
+          .then((post) => post.populate("profile"))
       )
       .then((args) => req.publish("post", req.user.profile.followers, args))
       .then((data) => res.status(201).json(data))
@@ -71,16 +73,21 @@ postRouter.route("/:id/like").post((req, res, next) =>
   Promise.resolve()
     .then(() => Post.findById(req.params.id))
     .then((data) =>
-      data ? data.likes.find((user) => user._id.equals(req.user.profile._id)) : next(createError(404))
+      data
+        ? data.likes.find((user) => user._id.equals(req.user.profile._id))
+        : next(createError(404))
     )
     .then((user) =>
       user === undefined
-        ? Post.findOneAndUpdate(
+        && Post.findOneAndUpdate(
             { _id: req.params.id },
             { $push: { likes: req.user.profile._id } },
             { new: true }
           )
-        : next(createError(400))
+    )
+    .then(
+      (args) =>
+        args && req.publish("post-like", req.user.profile.followers, args)
     )
     .then((data) =>
       data ? res.status(200).json(data) : next(createError(400))
@@ -93,16 +100,18 @@ postRouter.route("/:id/unlike").post((req, res, next) =>
   Promise.resolve()
     .then(() => Post.findById(req.params.id))
     .then((data) =>
-      data ? data.likes.find((user) => user._id.equals(req.user.profile._id)) : next(createError(404))
+      data
+        ? data.likes.find((user) => user._id.equals(req.user.profile._id))
+        : next(createError(404))
     )
-    .then((user) =>
-      user !== undefined
-        ? Post.findOneAndUpdate(
-            { _id: req.params.id },
-            { $pull: { likes: req.user.profile._id } },
-            { new: true }
-          )
-        : next(createError(400))
+    .then(
+      (user) =>
+        user !== undefined &&
+        Post.findOneAndUpdate(
+          { _id: req.params.id },
+          { $pull: { likes: req.user.profile._id } },
+          { new: true }
+        )
     )
     .then((data) =>
       data ? res.status(200).json(data) : next(createError(400))
