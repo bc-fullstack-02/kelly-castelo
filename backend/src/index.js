@@ -5,7 +5,7 @@ const socketio = require("socket.io");
 const jwt = require("jsonwebtoken");
 
 const TOKEN_SECRET = process.env.TOKEN_SECRET;
-const { User } = require("./models");
+const { User, Post } = require("./models");
 
 const io = socketio(server, {
   cors: {
@@ -18,14 +18,18 @@ const liveData = io.of("/v1");
 liveData.use((socket, next) => {
   if (socket.handshake.auth && socket.handshake.auth.token) {
     jwt.verify(socket.handshake.auth.token, TOKEN_SECRET, (err, user) => {
-      User.findOne(user).populate("profile").then(userFound => {
-        if(userFound) {
-          socket.user_data = userFound;
-          next()
-        } else {
-          next(new Error("Authentication error"))
-        }
-      })
+      User.findOne(user)
+        .select("-password")
+        .populate("profile")
+        .then((userFound) => {
+          if (userFound) {
+            socket.user_data = userFound;
+            console.log(socket);
+            next();
+          } else {
+            next(new Error("Authentication error"));
+          }
+        });
     });
   } else {
     next(new Error("Authentication error"));
@@ -45,11 +49,11 @@ liveData.on("connection", (socket) => {
 pubsub
   .sub()
   .then((sub) => {
-    sub.on("message", (message, content, ackOrNack) => {     
+    sub.on("message", (message, content, ackOrNack) => {
       ackOrNack();
       Object.entries(Object.fromEntries(liveData.sockets))
-        .filter(([, v]) => 
-        content.keys.includes(v.user_data.profile._id.toString())
+        .filter(([, v]) =>
+          content.keys.includes(v.user_data.profile._id.toString())
         )
         .map(([k, v]) => {
           return v.emit(content.type, content.payload);
@@ -58,6 +62,8 @@ pubsub
   })
   .catch(console.error);
 
-  server.listen(process.env.PORT || 4000, () => {
-  console.log(`server listening on http://localhost:${process.env.PORT || 4000}`);
+server.listen(process.env.PORT || 4000, () => {
+  console.log(
+    `server listening on http://localhost:${process.env.PORT || 4000}`
+  );
 });
