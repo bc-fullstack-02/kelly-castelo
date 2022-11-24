@@ -1,3 +1,3 @@
 ## wip 
 
-- eu tive algumas decisões que provavelmente não foram boas ideias, mas serve para aprender
+- dar um jeito de corrigir as notificações de like e comment
