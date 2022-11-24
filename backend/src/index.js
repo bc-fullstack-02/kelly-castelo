@@ -18,7 +18,7 @@ const liveData = io.of("/v1");
 liveData.use((socket, next) => {
   if (socket.handshake.auth && socket.handshake.auth.token) {
     jwt.verify(socket.handshake.auth.token, TOKEN_SECRET, (err, user) => {
-      User.findOne({ user }).populate("profile").then(userFound => {
+      User.findOne(user).populate("profile").then(userFound => {
         if(userFound) {
           socket.user_data = userFound;
           next()

@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const { User, Profile } = require("../models");
+const user = require("../models/user");
 const TOKEN_SECRET = process.env.TOKEN_SECRET;
 
 securityRouter.route("/register").post((req, res, next) =>
@@ -30,12 +31,15 @@ securityRouter.route("/login").post((req, res, next) =>
     .then(() => User.findOne({ user: req.body.user }).populate("profile"))
     .then((user) =>
       user
-        ? bcrypt.compare(req.body.password, user.password)
+        ? bcrypt
+            .compare(req.body.password, user.password)
+            .then((passwordMatch) => [user._doc, passwordMatch])
         : next(createError(404))
     )
-    .then((passwordMatch) =>
+    .then(([{ password: _, ...user }, passwordMatch]) => ([user, passwordMatch]))
+    .then(([user, passwordMatch]) =>
       passwordMatch
-        ? jwt.sign(req.body.user, TOKEN_SECRET)
+        ? jwt.sign(JSON.stringify(user), TOKEN_SECRET)
         : next(createError(400))
     )
     .then((token) =>

@@ -4,7 +4,6 @@ const config = require("./config");
 //attributes the env variable to json config file
 config.vhosts["/"].connection.url = process.env.AMQP_URL;
 
-// const config = Rascal.withDefaultConfig(defaultConfig);
 const publisher = Object.keys(config.vhosts["/"].publications)[0];
 const consumer = Object.keys(config.vhosts["/"].subscriptions)[0];
 

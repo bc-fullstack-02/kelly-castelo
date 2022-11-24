@@ -15,7 +15,7 @@ const authValidator = (req, res, next) =>
         : createError(403)
     )
     .then((user) =>
-      User.findOne({user})
+      User.findOne(user)
         .populate("profile")
         .then((userFound) => {
           req.user = userFound;

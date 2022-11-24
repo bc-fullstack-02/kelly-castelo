@@ -1089,7 +1089,7 @@
         "properties": {
           "token": {
             "type": "string",
-            "example": "eyJhbGciOiJIUzI1NiJ9.YmFyYmE.2SRqT4_DuKueHrzf6pFTu7EUZx1QSLoJhoT_kWT-0z4"
+            "example": "eyJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2MzdmM2E2ZTJjODJjNjYwYTk2ZDhjY2YiLCJ1c2VyIjoiYmFyYmEiLCJfX3YiOjAsInByb2ZpbGUiOnsiX2lkIjoiNjM3ZjNhNmUyYzgyYzY2MGE5NmQ4Y2Q1IiwibmFtZSI6ImJhcmJhIiwidXNlciI6IjYzN2YzYTZlMmM4MmM2NjBhOTZkOGNjZiIsImZvbGxvd2luZyI6WyI2MzdmM2E2ZTJjODJjNjYwYTk2ZDhjZTgiLCI2MzdmM2E2ZTJjODJjNjYwYTk2ZDhjZDUiXSwiZm9sbG93ZXJzIjpbIjYzN2YzYTZlMmM4MmM2NjBhOTZkOGNkMSIsIjYzN2YzYTZlMmM4MmM2NjBhOTZkOGNkNSJdLCJfX3YiOjB9fQ.0KzLRscYliEFmUl61KWE5MEKS69XJWfalL5hfpy-BG8"
           }
         }
       },
