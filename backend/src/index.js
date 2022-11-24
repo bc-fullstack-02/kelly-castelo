@@ -5,6 +5,7 @@ const socketio = require("socket.io");
 const jwt = require("jsonwebtoken");
 
 const TOKEN_SECRET = process.env.TOKEN_SECRET;
+const { User } = require("./models");
 
 const io = socketio(server, {
   cors: {
@@ -17,12 +18,14 @@ const liveData = io.of("/v1");
 liveData.use((socket, next) => {
   if (socket.handshake.auth && socket.handshake.auth.token) {
     jwt.verify(socket.handshake.auth.token, TOKEN_SECRET, (err, user) => {
-      if(user) {
-        socket.user_data = user;
-        next()
-      } else {
-        next(new Error("Authentication error"))
-      }
+      User.findOne({ user }).populate("profile").then(userFound => {
+        if(userFound) {
+          socket.user_data = userFound;
+          next()
+        } else {
+          next(new Error("Authentication error"))
+        }
+      })
     });
   } else {
     next(new Error("Authentication error"));
@@ -42,11 +45,11 @@ liveData.on("connection", (socket) => {
 pubsub
   .sub()
   .then((sub) => {
-    sub.on("message", (message, content, ackOrNack) => {      
+    sub.on("message", (message, content, ackOrNack) => {     
       ackOrNack();
       Object.entries(Object.fromEntries(liveData.sockets))
         .filter(([, v]) => 
-        content.keys.includes(v.user_data.profile.id.toString())
+        content.keys.includes(v.user_data.profile._id.toString())
         )
         .map(([k, v]) => {
           return v.emit(content.type, content.payload);

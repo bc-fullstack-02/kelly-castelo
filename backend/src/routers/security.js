@@ -30,26 +30,12 @@ securityRouter.route("/login").post((req, res, next) =>
     .then(() => User.findOne({ user: req.body.user }).populate("profile"))
     .then((user) =>
       user
-        ? {
-            password: bcrypt.compare(req.body.password, user.password),
-            profile: {
-              id: user.profile._id,
-              followers: user.profile.followers,
-            },
-            user: user.id,
-          }
+        ? bcrypt.compare(req.body.password, user.password)
         : next(createError(404))
     )
-    .then(({ password, user, profile }) =>
-      password
-        ? jwt.sign(
-            {
-              user: req.body.user,
-              id: user,
-              profile: { id: profile.id, followers: profile.followers },
-            },
-            TOKEN_SECRET
-          )
+    .then((passwordMatch) =>
+      passwordMatch
+        ? jwt.sign(req.body.user, TOKEN_SECRET)
         : next(createError(400))
     )
     .then((token) =>

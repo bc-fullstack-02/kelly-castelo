@@ -24,7 +24,7 @@ commentRouter
   .post((req, res, next) =>
     Promise.resolve()
       .then(() =>
-        new Comment(Object.assign({...req.body, profile: req.user.profile.id}, { post: req.params.postId })).save()
+        new Comment(Object.assign({...req.body, profile: req.user.profile._id}, { post: req.params.postId })).save()
       )
       .then((comment) =>
         Post.findById(comment.post)
@@ -97,13 +97,13 @@ commentRouter
     Promise.resolve()
       .then(() => Comment.findById(req.params.id))
       .then((data) =>
-        data.likes.find((user) => user._id.toString() === req.user.profile.id)
+        data.likes.find((user) => user._id.equals(req.user.profile._id))
       )
       .then((user) =>
         user === undefined
           ? Comment.findOneAndUpdate(
               { _id: req.params.id },
-              { $push: { likes: req.user.profile.id } },
+              { $push: { likes: req.user.profile._id } },
               { new: true }
             )
           : next(createError(400))
@@ -125,13 +125,13 @@ commentRouter
     Promise.resolve()
       .then(() => Comment.findById(req.params.id))
       .then((data) =>
-        data.likes.find((user) => user._id.toString() === req.user.profile.id)
+        data.likes.find((user) => user._id.equals(req.user.profile._id))
       )
       .then((user) =>
         user !== undefined
           ? Comment.findOneAndUpdate(
               { _id: req.params.id },
-              { $pull: { likes: req.user.profile.id } },
+              { $pull: { likes: req.user.profile._id } },
               { new: true }
             )
           : next(createError(400))

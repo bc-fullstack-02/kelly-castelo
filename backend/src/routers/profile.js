@@ -41,20 +41,25 @@ profileRouter.route("/:id/follow").post((req, res, next) =>
   Promise.resolve()
     .then(() => Profile.findById(req.params.id))
     .then((data) =>
-      data ? data.followers.find((user) => user._id.toString() === req.user.profile.id) : next(createError(404))
+      data
+        ? data.followers.find(
+            (user) => user._id.equals(req.user.profile._id)
+          )
+        : next(createError(404))
     )
     .then((user) =>
       user === undefined
         ? Profile.findOneAndUpdate(
             { _id: req.params.id },
-            { $push: { followers: req.user.profile.id } }
+            { $push: { followers: req.user.profile._id } }
           )
         : next(createError(400))
     )
+    .then((args) => req.publish("follow", req.params.id, args))
     .then((data) =>
       data
         ? Profile.findOneAndUpdate(
-            { _id: req.user.profile.id },
+            { _id: req.user.profile._id },
             { $push: { following: req.params.id } },
             { new: true }
           )
@@ -68,20 +73,24 @@ profileRouter.route("/:id/unfollow").post((req, res, next) =>
   Promise.resolve()
     .then(() => Profile.findById(req.params.id))
     .then((data) =>
-      data ? data.followers.find((user) => user._id.toString() === req.user.profile.id) : next(createError(404))
+      data
+        ? data.followers.find(
+            (user) => user._id.equals(req.user.profile._id)
+          )
+        : next(createError(404))
     )
     .then((user) =>
       user !== undefined
         ? Profile.findOneAndUpdate(
             { _id: req.params.id },
-            { $pull: { followers: req.user.profile.id } }
+            { $pull: { followers: req.user.profile._id } }
           )
         : next(createError(400))
     )
     .then((data) =>
       data
         ? Profile.findOneAndUpdate(
-            { _id: req.user.profile.id },
+            { _id: req.user.profile._id },
             { $pull: { following: req.params.id } },
             { new: true }
           )

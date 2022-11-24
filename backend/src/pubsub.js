@@ -24,6 +24,8 @@ module.exports = {
               keys,
             };
 
+            console.log(value)
+
             broker.publish(publisher, message, function (err, publication) {
               if (err) reject(err);
               publication.on("error", reject);

@@ -1089,7 +1089,7 @@
         "properties": {
           "token": {
             "type": "string",
-            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYmFyYmEiLCJpZCI6IjYzN2U0YTE1MDNjMjVjZGRhYjM4MzA0YyIsInByb2ZpbGUiOnsiaWQiOiI2MzdlNGExNTAzYzI1Y2RkYWIzODMwNzEiLCJmb2xsb3dlcnMiOlsiNjM3ZTRhMTUwM2MyNWNkZGFiMzgzMDcxIl19LCJpYXQiOjE2NjkyMzQyMzN9.SkB76f3RH7zNME5e3nRxQLrUOXdaflM6UXKdg9mUDXY"
+            "example": "eyJhbGciOiJIUzI1NiJ9.YmFyYmE.2SRqT4_DuKueHrzf6pFTu7EUZx1QSLoJhoT_kWT-0z4"
           }
         }
       },

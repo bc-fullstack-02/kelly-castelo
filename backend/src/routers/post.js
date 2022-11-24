@@ -16,9 +16,9 @@ postRouter
   .post((req, res, next) =>
     Promise.resolve()
       .then(() =>
-        new Post({ ...req.body, profile: req.user.profile.id }).save()
+        new Post({ ...req.body, profile: req.user.profile._id }).save()
       )
-      .then(args => req.publish('post', req.user.profile.followers, args))
+      .then((args) => req.publish("post", req.user.profile.followers, args))
       .then((data) => res.status(201).json(data))
       .catch((err) => next(err))
   );
@@ -71,18 +71,20 @@ postRouter.route("/:id/like").post((req, res, next) =>
   Promise.resolve()
     .then(() => Post.findById(req.params.id))
     .then((data) =>
-      data.likes.find((user) => user._id.toString() === req.user.profile.id)
+      data ? data.likes.find((user) => user._id.equals(req.user.profile._id)) : next(createError(404))
     )
     .then((user) =>
       user === undefined
         ? Post.findOneAndUpdate(
             { _id: req.params.id },
-            { $push: { likes: req.user.profile.id } },
+            { $push: { likes: req.user.profile._id } },
             { new: true }
           )
         : next(createError(400))
     )
-    .then((data) => (data ? res.status(200).json(data) : next(createError(400))))
+    .then((data) =>
+      data ? res.status(200).json(data) : next(createError(400))
+    )
     .catch((err) => next(err))
 );
 
@@ -91,18 +93,20 @@ postRouter.route("/:id/unlike").post((req, res, next) =>
   Promise.resolve()
     .then(() => Post.findById(req.params.id))
     .then((data) =>
-      data.likes.find((user) => user._id.toString() === req.user.profile.id)
+      data ? data.likes.find((user) => user._id.equals(req.user.profile._id)) : next(createError(404))
     )
     .then((user) =>
       user !== undefined
         ? Post.findOneAndUpdate(
             { _id: req.params.id },
-            { $pull: { likes: req.user.profile.id } },
+            { $pull: { likes: req.user.profile._id } },
             { new: true }
           )
         : next(createError(400))
     )
-    .then((data) => (data ? res.status(200).json(data) : next(createError(400))))
+    .then((data) =>
+      data ? res.status(200).json(data) : next(createError(400))
+    )
     .catch((err) => next(err))
 );
 
