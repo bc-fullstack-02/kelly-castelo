@@ -24,7 +24,6 @@ liveData.use((socket, next) => {
         .then((userFound) => {
           if (userFound) {
             socket.user_data = userFound;
-            console.log(socket);
             next();
           } else {
             next(new Error("Authentication error"));

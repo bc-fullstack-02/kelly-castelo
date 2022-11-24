@@ -87,7 +87,7 @@ postRouter.route("/:id/like").post((req, res, next) =>
     )
     .then(
       (args) =>
-        args && req.publish("post-like", req.user.profile.followers, args)
+        args && req.publish("post-like", args, args)
     )
     .then((data) =>
       data ? res.status(200).json(data) : next(createError(400))

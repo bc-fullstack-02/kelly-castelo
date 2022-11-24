@@ -38,11 +38,10 @@ commentRouter
             Object.assign(post, { comments: [...post.comments, comment._id] })
           )
           .then((post) => Post.findByIdAndUpdate(comment.post, post))
-          .then(() => comment.populate("profile"))
           .then(({ ...data }) => data._doc)
           .then(({ post, ...data }) => data)
       )
-      .then((args) => req.publish("comment", req.user.profile.followers, args))
+      .then((args) => req.publish("comment", args, args))
       .then((data) => {
         res.status(201).json(data);
       })
@@ -118,10 +117,7 @@ commentRouter
             )
           : next(createError(400))
       )
-      .then(
-        (args) =>
-          args && req.publish("comment-like", req.user.profile.followers, args)
-      )
+      .then((args) => args && req.publish("comment-like", args, args))
       .then((data) => (data ? res.status(200).json(data) : createError(400)))
       .catch((err) => next(err))
   );

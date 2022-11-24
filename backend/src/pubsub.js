@@ -17,13 +17,19 @@ module.exports = {
         req.publish = (type, keys, value) =>
           new Promise((resolve, reject) => {
             // creates a message object and set its properties
+            
+            //not the best way to deal with it but it works
+            if(type === "post-like" || type === "comment-like" || type === "comment") {
+              keys = keys.profile
+            } 
+          
             const message = {
               type,
               payload: value,
               keys,
             };
 
-            console.log(value)
+            console.log(keys)
 
             broker.publish(publisher, message, function (err, publication) {
               if (err) reject(err);
