@@ -416,7 +416,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommentResponse"
+                  "$ref": "#/components/schemas/CommentPostResponse"
                 }
               }
             }
@@ -1324,6 +1324,37 @@
           },
           "profile": {
             "$ref": "#/components/schemas/ProfileResponse"
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "637bb9d4da4e28ea8606b7c4"
+            }
+          },
+          "likes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "637bb9d4da4e28ea8606b7c4"
+            }
+          }
+        }
+      },
+      "CommentPostResponse": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "637bbc3a69c083c2b0003097"
+          },
+          "description": {
+            "type": "string",
+            "example": "That is the question"
+          },
+          "profile": {
+            "type": "string",
+            "example": "637bb9d4da4e28ea8606b7c4"
           },
           "comments": {
             "type": "array",
