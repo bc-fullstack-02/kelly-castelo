@@ -1,6 +1,7 @@
 const express = require("express");
 const postRouter = express.Router();
 const createError = require("http-errors");
+const upload = require("../upload");
 const { Post } = require("../models");
 
 postRouter
@@ -13,16 +14,21 @@ postRouter
       .then((data) => res.status(200).json(data))
       .catch((err) => next(err))
   )
-  .post((req, res, next) =>
-    Promise.resolve()
-      .then(() =>
-        new Post({ ...req.body, profile: req.user.profile._id })
-          .save()
-          .then((post) => post.populate("profile"))
-      )
-      .then((args) => req.publish("post", req.user.profile.followers, args))
-      .then((data) => res.status(201).json(data))
-      .catch((err) => next(err))
+  .post(
+    upload.concat([
+      (req, res, next) =>
+        Promise.resolve()
+          .then(() => console.log("im here"))
+          .then(() => console.log(req.user))
+          .then(() =>
+            new Post({ ...req.body, profile: req.user.profile._id })
+              .save()
+              .then((post) => post.populate("profile"))
+          )
+          .then((args) => req.publish("post", req.user.profile.followers, args))
+          .then((data) => res.status(201).json(data))
+          .catch((err) => next(err)),
+    ])
   );
 
 postRouter
@@ -77,18 +83,16 @@ postRouter.route("/:id/like").post((req, res, next) =>
         ? data.likes.find((user) => user._id.equals(req.user.profile._id))
         : next(createError(404))
     )
-    .then((user) =>
-      user === undefined
-        && Post.findOneAndUpdate(
-            { _id: req.params.id },
-            { $push: { likes: req.user.profile._id } },
-            { new: true }
-          )
-    )
     .then(
-      (args) =>
-        args && req.publish("post-like", args, args)
+      (user) =>
+        user === undefined &&
+        Post.findOneAndUpdate(
+          { _id: req.params.id },
+          { $push: { likes: req.user.profile._id } },
+          { new: true }
+        )
     )
+    .then((args) => args && req.publish("post-like", args, args))
     .then((data) =>
       data ? res.status(200).json(data) : next(createError(400))
     )

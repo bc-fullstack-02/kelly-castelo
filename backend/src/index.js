@@ -5,7 +5,7 @@ const socketio = require("socket.io");
 const jwt = require("jsonwebtoken");
 
 const TOKEN_SECRET = process.env.TOKEN_SECRET;
-const { User, Post } = require("./models");
+const { User } = require("./models");
 
 const io = socketio(server, {
   cors: {

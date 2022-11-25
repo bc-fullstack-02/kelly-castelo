@@ -27,6 +27,13 @@ const postSchema = new Schema({
       ref: "Profile",
     },
   ],
+  image: {
+    type: Boolean,
+    default: false
+  },
+  image_url: {
+    type: String
+  }
 });
 
 module.exports = model("Post", postSchema);

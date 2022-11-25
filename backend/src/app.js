@@ -14,18 +14,24 @@ const {
   UserRouter,
   SecurityRouter,
   ProfileRouter,
-  FeedRouter
+  FeedRouter,
 } = require("./routers");
 const { AuthValidator, ErrorHandler } = require("./middleware");
-const pubsub = require("./pubsub")
+const pubsub = require("./pubsub");
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }))
 
-
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use(pubsub.pub);
 
-app.use(express.json());
+// app.use((req, res, next) =>
+//   (/^multipart\//i.test(req.get("Content-Type")))
+//     ? next()
+//     : urlencodedMiddleware(req, res, next)
+// );
+
 app.use(cors());
 // app.use(helmet());
 

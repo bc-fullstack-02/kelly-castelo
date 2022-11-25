@@ -7,7 +7,6 @@ userRouter
   .route("/me")
   .get((req, res, next) =>
     Promise.resolve()
-      .then(() => console.log(req.user))
       .then(() => User.findById(req.user._id, ["-password"]))
       .then((data) => data ? res.status(200).json(data) : next(createError(404)))
       .catch((err) => next(err))
